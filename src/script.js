@@ -7,7 +7,7 @@ const cpm = document.querySelector(".cpm span");
 const btn = document.querySelector("button");
 
 let timer;
-let maxTime = 60
+let maxTime = 60;
 let timeLeft = maxTime;
 let charIndex = 0;
 let mistake = 0;
@@ -56,70 +56,74 @@ function loadParagraph() {
         "In the tranquil garden, the gentle hum of bees and the fragrance of roses created a peaceful retreat, a sanctuary where the worries of the world could melt away in the embrace of nature's beauty.",
         "The ancient manuscript held secrets of a bygone era, its fragile pages filled with cryptic symbols and faded illustrations, a testament to the wisdom and mysteries of a civilization long forgotten."
 
-            
-        
+
+
     ];
-    
 
     const randomIndex = Math.floor(Math.random() * paragraph.length);
-    typingText.innerHTML = ""
+    typingText.innerHTML = "";
 
     for (const char of paragraph[randomIndex]) {
-        typingText.innerHTML += `<span>${char}</span>`
+        typingText.innerHTML += `<span>${char}</span>`;
     }
     typingText.querySelectorAll("span")[0].classList.add("active");
-    document.addEventListener("keydown", ()=> input.focus())
-    typingText.addEventListener("click", ()=>{input.focus()})
+    document.addEventListener("keydown", () => input.focus());
+    typingText.addEventListener("click", () => { input.focus(); });
 }
 
-// handle user input
-function initTyping() {
+function initTyping(e) {
     const char = typingText.querySelectorAll("span");
     const typedChar = input.value.charAt(charIndex);
-    
-    if (charIndex < char.length && timeLeft > 0) {
 
-        if (!isTyping){
-            timer = setInterval(initTime , 1000);
+    if (charIndex < char.length && timeLeft > 0) {
+        if (!isTyping) {
+            timer = setInterval(initTime, 1000);
             isTyping = true;
         }
 
-        if (char[charIndex].innerText === typedChar) {
-            char[charIndex].classList.add("correct");
-            console.log("correct")
-            // char[charIndex - 1].classList.remove("active");
-            // char[charIndex].classList.add("active");
+        if (e.inputType === "deleteContentBackward") {
+            if (charIndex > 0) {
+                charIndex--;
+                if (char[charIndex].classList.contains("incorrect")) {
+                    mistake--;
+                }
+                char[charIndex].classList.remove("correct", "incorrect");
+                char.forEach(span => span.classList.remove("cursor"));
+                char[charIndex].classList.add("active", "cursor");
+            }
+        } else {
+            if (char[charIndex].innerText === typedChar) {
+                char[charIndex].classList.add("correct");
+            } else {
+                char[charIndex].classList.add("incorrect");
+                mistake++;
+            }
+            char.forEach(span => span.classList.remove("cursor"));
+            charIndex++;
+            char[charIndex].classList.add("active", "cursor");
         }
-        else {
-            char[charIndex].classList.add("incorrect");
-            mistake++;
-            console.log("incorrect")
-        }
-        charIndex++;
-        char[charIndex].classList.add("active");
+
         mistakes.innerText = mistake;
         cpm.innerText = charIndex - mistake;
-    }
-    else{
-        clearInterval(timer)
-
+    } else {
+        clearInterval(timer);
+        char.forEach(span => span.classList.remove("cursor"));
     }
 }
 
 function initTime() {
-    if(timeLeft>0){
+    if (timeLeft > 0) {
         timeLeft--;
         time.innerText = timeLeft;
 
-        let wpmVal = Math.round(((charIndex-mistake) /5 ) / (maxTime - timeLeft) *60);
+        let wpmVal = Math.round(((charIndex - mistake) / 5) / (maxTime - timeLeft) * 60);
         wpm.innerText = wpmVal;
-    }
-    else {
-        clearInterval(timer)
+    } else {
+        clearInterval(timer);
     }
 }
 
-function reset (){
+function reset() {
     loadParagraph();
     clearInterval(timer);
     timeLeft = maxTime;
@@ -130,10 +134,8 @@ function reset (){
     cpm.innerText = 0;
     isTyping = false;
     wpm.innerText = 0;
-
-
 }
 
 input.addEventListener("input", initTyping);
-btn.addEventListener("click", reset)
+btn.addEventListener("click", reset);
 loadParagraph();
