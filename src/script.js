@@ -1,5 +1,5 @@
-const typingText = document.querySelector(".typing-text .paragraph-text"); // Updated selector for paragraph text
-const input = document.querySelector(".input-field"); // Updated selector for input field
+const typingText = document.querySelector(".typing-text .paragraph-text");
+const input = document.querySelector(".input-field");
 const time = document.querySelector(".time span b");
 const mistakes = document.querySelector(".mistake span");
 const wpm = document.querySelector(".wpm span");
@@ -55,9 +55,6 @@ function loadParagraph() {
         "With a determined spirit, she climbed the steep hill, each step bringing her closer to her goal, her heart filled with a sense of purpose and the promise of achievement at the journey's end.",
         "In the tranquil garden, the gentle hum of bees and the fragrance of roses created a peaceful retreat, a sanctuary where the worries of the world could melt away in the embrace of nature's beauty.",
         "The ancient manuscript held secrets of a bygone era, its fragile pages filled with cryptic symbols and faded illustrations, a testament to the wisdom and mysteries of a civilization long forgotten."
-
-
-
     ];
 
     const randomIndex = Math.floor(Math.random() * paragraph.length);
@@ -81,6 +78,7 @@ function initTyping(e) {
             isTyping = true;
         }
 
+        // Handle backspace
         if (e.inputType === "deleteContentBackward") {
             if (charIndex > 0) {
                 charIndex--;
@@ -100,7 +98,9 @@ function initTyping(e) {
             }
             char.forEach(span => span.classList.remove("cursor"));
             charIndex++;
-            char[charIndex].classList.add("active", "cursor");
+            if (charIndex < char.length) {
+                char[charIndex].classList.add("active", "cursor");
+            }
         }
 
         mistakes.innerText = mistake;
@@ -124,16 +124,18 @@ function initTime() {
 }
 
 function reset() {
-    loadParagraph();
     clearInterval(timer);
+    loadParagraph();
+    input.value = "";
     timeLeft = maxTime;
     time.innerText = timeLeft;
     charIndex = 0;
     mistake = 0;
     mistakes.innerText = 0;
     cpm.innerText = 0;
-    isTyping = false;
     wpm.innerText = 0;
+    isTyping = false;
+    input.focus();
 }
 
 input.addEventListener("input", initTyping);
